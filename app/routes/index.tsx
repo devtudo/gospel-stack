@@ -1,63 +1,328 @@
+import {
+  Box,
+  Flex,
+  Text,
+  IconButton,
+  Button,
+  Stack,
+  Collapse,
+  Icon,
+  Link as ChakraLink,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  useColorModeValue,
+  useBreakpointValue,
+  useDisclosure,
+  HStack,
+} from "@chakra-ui/react";
+import {
+  HamburgerIcon,
+  CloseIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+} from "@chakra-ui/icons";
 import { Link } from "@remix-run/react";
 
 import { useOptionalUser } from "~/utils";
 
 export default function Index() {
   const user = useOptionalUser();
+  const { isOpen, onToggle } = useDisclosure();
+
   return (
-    <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
-      <div className="relative sm:pb-16 sm:pt-8">
-        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="relative shadow-xl sm:overflow-hidden sm:rounded-2xl">
-            <div className="absolute inset-0">
-              <div className="absolute inset-0 bg-[color:rgba(27,167,254,0.5)] mix-blend-multiply" />
-            </div>
-            <div className="relative px-4 pt-16 pb-8 sm:px-6 sm:pt-24 sm:pb-14 lg:px-8 lg:pb-20 lg:pt-32">
-              <h1 className="text-center text-6xl font-extrabold tracking-tight sm:text-8xl lg:text-9xl">
-                <span className="block uppercase text-blue-500 drop-shadow-md">
-                  Blues Stack
-                </span>
-              </h1>
-              <p className="mx-auto mt-6 max-w-lg text-center text-xl text-white sm:max-w-3xl">
-                Check the README.md file for instructions on how to get this
-                project deployed.
-              </p>
-              <div className="mx-auto mt-10 max-w-sm sm:flex sm:max-w-none sm:justify-center">
-                {user ? (
-                  <Link
-                    to="/notes"
-                    className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-blue-700 shadow-sm hover:bg-blue-50 sm:px-8"
-                  >
-                    View Notes for {user.email}
-                  </Link>
-                ) : (
-                  <div className="space-y-4 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5 sm:space-y-0">
-                    <Link
-                      to="/join"
-                      className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-blue-700 shadow-sm hover:bg-blue-50 sm:px-8"
-                    >
-                      Sign up
-                    </Link>
-                    <Link
-                      to="/login"
-                      className="flex items-center justify-center rounded-md bg-blue-500 px-4 py-3 font-medium text-white hover:bg-blue-600"
-                    >
-                      Log In
-                    </Link>
-                  </div>
-                )}
-              </div>
-              <a href="https://remix.run">
-                <img
-                  src="https://user-images.githubusercontent.com/1500684/158298926-e45dafff-3544-4b69-96d6-d3bcc33fc76a.svg"
-                  alt="Remix"
-                  className="mx-auto mt-16 w-full max-w-[12rem] md:max-w-[16rem]"
-                />
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
+    <Box>
+      <Flex
+        bg={useColorModeValue("white", "gray.800")}
+        color={useColorModeValue("gray.600", "white")}
+        minH={"60px"}
+        py={{ base: 2 }}
+        px={{ base: 4 }}
+        borderBottom={1}
+        borderStyle={"solid"}
+        borderColor={useColorModeValue("gray.200", "gray.900")}
+        align={"center"}
+      >
+        <Flex
+          flex={{ base: 1, md: "auto" }}
+          ml={{ base: -2 }}
+          display={{ base: "flex", md: "none" }}
+        >
+          <IconButton
+            onClick={onToggle}
+            icon={
+              isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
+            }
+            variant={"ghost"}
+            aria-label={"Toggle Navigation"}
+          />
+        </Flex>
+        <Flex flex={{ base: 1 }} justify={{ base: "center", md: "start" }}>
+          <Text
+            textAlign={useBreakpointValue({ base: "center", md: "left" })}
+            fontFamily={"heading"}
+            color={useColorModeValue("gray.800", "white")}
+          >
+            Logo
+          </Text>
+
+          <Flex display={{ base: "none", md: "flex" }} ml={10}>
+            <DesktopNav />
+          </Flex>
+        </Flex>
+
+        {user ? (
+          <Link
+            to="/notes"
+            className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-blue-700 shadow-sm hover:bg-blue-50 sm:px-8"
+          >
+            View Notes for {user.email}
+          </Link>
+        ) : (
+          <Stack
+            flex={{ base: 1, md: 0 }}
+            justify={"flex-end"}
+            direction={"row"}
+            spacing={6}
+          >
+            <Button
+              as={Link}
+              fontSize={"sm"}
+              fontWeight={400}
+              variant={"link"}
+              to="/login"
+            >
+              Log In
+            </Button>
+            <Button
+              as={Link}
+              display={{ base: "none", md: "inline-flex" }}
+              fontSize={"sm"}
+              fontWeight={600}
+              color={"white"}
+              bg={"pink.400"}
+              to="/join"
+              _hover={{
+                bg: "pink.300",
+              }}
+            >
+              Sign Up
+            </Button>
+          </Stack>
+        )}
+      </Flex>
+
+      <Collapse in={isOpen} animateOpacity>
+        <MobileNav />
+      </Collapse>
+    </Box>
   );
 }
+
+const DesktopNav = () => {
+  const linkColor = useColorModeValue("gray.600", "gray.200");
+  const linkHoverColor = useColorModeValue("gray.800", "white");
+  const popoverContentBgColor = useColorModeValue("white", "gray.800");
+
+  return (
+    <Stack direction={"row"} spacing={4}>
+      {NAV_ITEMS.map((navItem) => (
+        <Box key={navItem.label}>
+          <Popover trigger={"hover"} placement={"bottom-start"}>
+            <PopoverTrigger>
+              <ChakraLink
+                as={Link}
+                p={2}
+                to={navItem.href ?? "#"}
+                fontSize={"sm"}
+                fontWeight={500}
+                color={linkColor}
+                _hover={{
+                  textDecoration: "none",
+                  color: linkHoverColor,
+                }}
+              >
+                {navItem.label}
+              </ChakraLink>
+            </PopoverTrigger>
+
+            {navItem.children && (
+              <PopoverContent
+                border={0}
+                boxShadow={"xl"}
+                bg={popoverContentBgColor}
+                p={4}
+                rounded={"xl"}
+                minW={"sm"}
+              >
+                <Stack>
+                  {navItem.children.map((child) => (
+                    <DesktopSubNav key={child.label} {...child} />
+                  ))}
+                </Stack>
+              </PopoverContent>
+            )}
+          </Popover>
+        </Box>
+      ))}
+    </Stack>
+  );
+};
+
+const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
+  return (
+    <ChakraLink
+      as={Link}
+      to={href ?? "#"}
+      role={"group"}
+      display={"block"}
+      p={2}
+      rounded={"md"}
+      _hover={{ bg: useColorModeValue("pink.50", "gray.900") }}
+    >
+      <Stack direction={"row"} align={"center"}>
+        <Box>
+          <Text
+            transition={"all .3s ease"}
+            _groupHover={{ color: "pink.400" }}
+            fontWeight={500}
+          >
+            {label}
+          </Text>
+          <Text fontSize={"sm"}>{subLabel}</Text>
+        </Box>
+        <Flex
+          transition={"all .3s ease"}
+          transform={"translateX(-10px)"}
+          opacity={0}
+          _groupHover={{ opacity: "100%", transform: "translateX(0)" }}
+          justify={"flex-end"}
+          align={"center"}
+          flex={1}
+        >
+          <Icon color={"pink.400"} w={5} h={5} as={ChevronRightIcon} />
+        </Flex>
+      </Stack>
+    </ChakraLink>
+  );
+};
+
+const MobileNav = () => {
+  return (
+    <Stack
+      bg={useColorModeValue("white", "gray.800")}
+      p={4}
+      display={{ md: "none" }}
+    >
+      {NAV_ITEMS.map((navItem) => (
+        <MobileNavItem key={navItem.label} {...navItem} />
+      ))}
+    </Stack>
+  );
+};
+
+const MobileNavItem = ({ label, children, href }: NavItem) => {
+  const { isOpen, onToggle } = useDisclosure();
+
+  return (
+    <Stack spacing={4} onClick={children && onToggle}>
+      <Flex
+        py={2}
+        as={Link}
+        to={href ?? "#"}
+        justify={"space-between"}
+        align={"center"}
+        _hover={{
+          textDecoration: "none",
+        }}
+      >
+        <Text
+          fontWeight={600}
+          color={useColorModeValue("gray.600", "gray.200")}
+        >
+          {label}
+        </Text>
+        {children && (
+          <Icon
+            as={ChevronDownIcon}
+            transition={"all .25s ease-in-out"}
+            transform={isOpen ? "rotate(180deg)" : ""}
+            w={6}
+            h={6}
+          />
+        )}
+      </Flex>
+
+      <Collapse in={isOpen} animateOpacity style={{ marginTop: "0!important" }}>
+        <Stack
+          mt={2}
+          pl={4}
+          borderLeft={1}
+          borderStyle={"solid"}
+          borderColor={useColorModeValue("gray.200", "gray.700")}
+          align={"start"}
+        >
+          {children &&
+            children.map((child) => (
+              <ChakraLink
+                as={Link}
+                key={child.label}
+                py={2}
+                to={child.href ?? "#"}
+              >
+                {child.label}
+              </ChakraLink>
+            ))}
+        </Stack>
+      </Collapse>
+    </Stack>
+  );
+};
+
+interface NavItem {
+  label: string;
+  subLabel?: string;
+  children?: Array<NavItem>;
+  href?: string;
+}
+
+const NAV_ITEMS: Array<NavItem> = [
+  {
+    label: "Inspiration",
+    children: [
+      {
+        label: "Explore Design Work",
+        subLabel: "Trending Design to inspire you",
+        href: "#",
+      },
+      {
+        label: "New & Noteworthy",
+        subLabel: "Up-and-coming Designers",
+        href: "#",
+      },
+    ],
+  },
+  {
+    label: "Find Work",
+    children: [
+      {
+        label: "Job Board",
+        subLabel: "Find your dream design job",
+        href: "#",
+      },
+      {
+        label: "Freelance Projects",
+        subLabel: "An exclusive list for contract work",
+        href: "#",
+      },
+    ],
+  },
+  {
+    label: "Learn Design",
+    href: "#",
+  },
+  {
+    label: "Hire Designers",
+    href: "#",
+  },
+];

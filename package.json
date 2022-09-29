@@ -31,6 +31,7 @@
     "/postgres-data"
   ],
   "dependencies": {
+    "@chakra-ui/icons": "^2.0.10",
     "@chakra-ui/react": "^2.3.4",
     "@emotion/react": "^11.10.4",
     "@emotion/server": "^11.10.0",
