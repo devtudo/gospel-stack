@@ -5,7 +5,7 @@
 Learn more about [Remix Stacks](https://remix.run/stacks).
 
 ```
-npx create-remix@latest --template remix-run/gospel-stack
+npx create-remix@latest --template devtudo/gospel-stack
 ```
 
 ## What's in the stack
