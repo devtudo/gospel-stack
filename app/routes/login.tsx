@@ -1,51 +1,64 @@
-import {
-  Box,
-  Flex,
-  FormControl,
-  FormLabel,
-  Input,
-  Stack,
-  useColorModeValue,
-} from "@chakra-ui/react";
-import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
+import { Form, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
 
-import { verifyLogin } from "~/models/user.server";
+import {
+  Button,
+  Checkbox,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  chakra,
+} from "@chakra-ui/react";
 import { createUserSession, getUserId } from "~/session.server";
-import { safeRedirect, validateEmail } from "~/utils";
+import { verifyLogin } from "~/models/user.server";
+import { validateEmail } from "~/utils";
+import { ChakraRemixLink } from "~/components/factory";
 
-export async function loader({ request }: LoaderArgs) {
+export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
   if (userId) return redirect("/");
   return json({});
+};
+
+interface ActionData {
+  errors?: {
+    email?: string;
+    password?: string;
+  };
 }
 
-export async function action({ request }: ActionArgs) {
+export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
+  const redirectTo = formData.get("redirectTo");
   const remember = formData.get("remember");
 
   if (!validateEmail(email)) {
-    return json(
-      { errors: { email: "Email is invalid", password: null } },
+    return json<ActionData>(
+      { errors: { email: "Email is invalid" } },
       { status: 400 }
     );
   }
 
-  if (typeof password !== "string" || password.length === 0) {
-    return json(
-      { errors: { password: "Password is required", email: null } },
+  if (typeof password !== "string") {
+    return json<ActionData>(
+      { errors: { password: "Password is required" } },
       { status: 400 }
     );
   }
 
   if (password.length < 8) {
-    return json(
-      { errors: { password: "Password is too short", email: null } },
+    return json<ActionData>(
+      { errors: { password: "Password is too short" } },
       { status: 400 }
     );
   }
@@ -53,8 +66,8 @@ export async function action({ request }: ActionArgs) {
   const user = await verifyLogin(email, password);
 
   if (!user) {
-    return json(
-      { errors: { email: "Invalid email or password", password: null } },
+    return json<ActionData>(
+      { errors: { email: "Invalid email or password" } },
       { status: 400 }
     );
   }
@@ -63,9 +76,9 @@ export async function action({ request }: ActionArgs) {
     request,
     userId: user.id,
     remember: remember === "on" ? true : false,
-    redirectTo,
+    redirectTo: typeof redirectTo === "string" ? redirectTo : "/notes",
   });
-}
+};
 
 export const meta: MetaFunction = () => {
   return {
@@ -76,7 +89,7 @@ export const meta: MetaFunction = () => {
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/notes";
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData() as ActionData | undefined;
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
 
@@ -89,108 +102,84 @@ export default function LoginPage() {
   }, [actionData]);
 
   return (
-    <Flex
-      minH={"100vh"}
-      align={"center"}
-      justify={"center"}
-      bg={useColorModeValue("gray.50", "gray.800")}
-    >
-      <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
-        <Box
-          rounded={"lg"}
-          bg={useColorModeValue("white", "gray.700")}
-          boxShadow={"lg"}
-          p={8}
-        >
-          <Form method="post" className="space-y-6" noValidate>
-            <FormControl id="email">
-              <FormLabel>Email address</FormLabel>
+    <Flex minH={"100vh"} direction="column" justify="center">
+      <chakra.div mx="auto" w="full" maxW="md" px="8">
+        <Form method="post" noValidate>
+          <Flex direction="column" gap="6">
+            <FormControl
+              isInvalid={actionData?.errors?.email ? true : undefined}
+            >
+              <FormLabel
+                htmlFor="email"
+                fontSize="sm"
+                fontWeight="medium"
+                color="gray.700"
+              >
+                Email address
+              </FormLabel>
               <Input
                 ref={emailRef}
+                id="email"
                 required
                 autoFocus={true}
                 name="email"
                 type="email"
                 autoComplete="email"
-                aria-invalid={actionData?.errors?.email ? true : undefined}
-                aria-describedby="email-error"
+                mt="1"
               />
-              {actionData?.errors?.email && (
-                <div className="pt-1 text-red-700" id="email-error">
-                  {actionData.errors.email}
-                </div>
-              )}
+              <FormErrorMessage>{actionData?.errors?.email}</FormErrorMessage>
             </FormControl>
 
-            <FormControl id="password">
-              <FormLabel>Password</FormLabel>
-              <Input ref={passwordRef} name="password" type="password" />
-            </FormControl>
-
-            <div>
-              <label
+            <FormControl
+              isInvalid={actionData?.errors?.password ? true : undefined}
+            >
+              <FormLabel
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                fontSize="sm"
+                fontWeight="medium"
+                color="gray.700"
               >
                 Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  ref={passwordRef}
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  aria-invalid={actionData?.errors?.password ? true : undefined}
-                  aria-describedby="password-error"
-                  className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
-                />
-                {actionData?.errors?.password && (
-                  <div className="pt-1 text-red-700" id="password-error">
-                    {actionData.errors.password}
-                  </div>
-                )}
-              </div>
-            </div>
+              </FormLabel>
+              <Input
+                id="password"
+                ref={passwordRef}
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                mt="1"
+              />
+              <FormErrorMessage>
+                {actionData?.errors?.password}
+              </FormErrorMessage>
+            </FormControl>
 
             <input type="hidden" name="redirectTo" value={redirectTo} />
-            <button
-              type="submit"
-              className="w-full rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-            >
+            <Button type="submit" colorScheme="blue">
               Log in
-            </button>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember"
-                  name="remember"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <label
-                  htmlFor="remember"
-                  className="ml-2 block text-sm text-gray-900"
-                >
-                  Remember me
-                </label>
-              </div>
-              <div className="text-center text-sm text-gray-500">
+            </Button>
+            <Flex direction="column" align="center" justify="space-between">
+              <Checkbox id="remember" name="remember">
+                Remember me
+              </Checkbox>
+
+              <chakra.div textAlign="center" fontSize="sm" color="gray.500">
                 Don't have an account?{" "}
-                <Link
-                  className="text-blue-500 underline"
+                <ChakraRemixLink
+                  color="blue.500"
+                  textDecor="underline"
                   to={{
                     pathname: "/join",
                     search: searchParams.toString(),
                   }}
                 >
                   Sign up
-                </Link>
-              </div>
-            </div>
-          </Form>
-        </Box>
-      </Stack>
+                </ChakraRemixLink>
+              </chakra.div>
+            </Flex>
+          </Flex>
+        </Form>
+      </chakra.div>
     </Flex>
   );
 }

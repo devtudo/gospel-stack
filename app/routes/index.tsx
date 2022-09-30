@@ -14,7 +14,6 @@ import {
   useColorModeValue,
   useBreakpointValue,
   useDisclosure,
-  HStack,
 } from "@chakra-ui/react";
 import {
   HamburgerIcon,
