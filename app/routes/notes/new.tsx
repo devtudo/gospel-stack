@@ -71,34 +71,20 @@ export default function NewNotePage() {
       }}
     >
       <FormControl isInvalid={actionData?.errors?.title ? true : undefined}>
-        <FormLabel className="flex w-full flex-col gap-1">
+        <FormLabel>
           <span>Title: </span>
         </FormLabel>
-        <Input
-          ref={titleRef}
-          name="title"
-          className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-        />
+        <Input ref={titleRef} name="title" />
         <FormErrorMessage>{actionData?.errors?.title}</FormErrorMessage>
       </FormControl>
 
       <FormControl isInvalid={actionData?.errors?.body ? true : undefined}>
         <FormLabel>Body</FormLabel>
-        <Textarea
-          ref={bodyRef}
-          name="body"
-          rows={8}
-          className="w-full flex-1 rounded-md border-2 border-blue-500 py-2 px-3 text-lg leading-6"
-        />
+        <Textarea ref={bodyRef} name="body" rows={8} />
         <FormErrorMessage>{actionData?.errors?.body}</FormErrorMessage>
       </FormControl>
 
-      <Button
-        ml="auto"
-        colorScheme="blue"
-        type="submit"
-        className="rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-      >
+      <Button ml="auto" colorScheme="blue" type="submit">
         Save
       </Button>
     </Form>

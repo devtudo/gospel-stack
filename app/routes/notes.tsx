@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { Form, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
 import {
   Button,
@@ -11,11 +11,15 @@ import {
   ListItem,
   Stack,
   chakra,
+  Text,
+  useColorMode,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 import { getNoteListItems } from "~/models/note.server";
 import { ChakraRemixLink } from "~/components/factory";
+import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 type LoaderData = {
   noteListItems: Awaited<ReturnType<typeof getNoteListItems>>;
@@ -30,6 +34,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 export default function NotesPage() {
   const data = useLoaderData() as LoaderData;
   const user = useUser();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <Flex h="full" minH="screenY" direction="column">
@@ -37,19 +42,23 @@ export default function NotesPage() {
         as="header"
         align="center"
         justify="space-between"
-        bg="slategrey"
-        color="white"
+        bg={useColorModeValue("gray.100", "gray.900")}
         p="2"
       >
         <Heading fontSize="3xl">
-          <Link to=".">Notes</Link>
+          <ChakraRemixLink to=".">Notes</ChakraRemixLink>
         </Heading>
-        <p>{user.email}</p>
-        <Form action="/logout" method="post">
-          <Button type="submit" colorScheme="red" size="sm">
-            Logout
+        <Stack direction="row" spacing={4} align="center">
+          <Text>{user.email}</Text>
+          <Button onClick={toggleColorMode}>
+            {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
           </Button>
-        </Form>
+          <Form action="/logout" method="post">
+            <Button type="submit" colorScheme="red" size="sm">
+              Logout
+            </Button>
+          </Form>
+        </Stack>
       </Flex>
 
       <Flex as="main" h="full" bg="white">
@@ -61,7 +70,12 @@ export default function NotesPage() {
           spacing="0"
           divider={<Divider />}
         >
-          <ChakraRemixLink to="new" p="4" fontSize="xl" color="blue.500">
+          <ChakraRemixLink
+            to="new"
+            p="4"
+            fontSize="xl"
+            bg={useColorModeValue("gray.100", "gray.900")}
+          >
             + New Note
           </ChakraRemixLink>
 
@@ -74,11 +88,25 @@ export default function NotesPage() {
                   {({ isActive }) => (
                     <ListItem
                       p="4"
-                      bg={isActive ? "white" : ""}
+                      bg={
+                        colorMode === "light" && isActive
+                          ? "blue.100"
+                          : colorMode === "light" && !isActive
+                          ? ""
+                          : colorMode === "dark" && isActive
+                          ? "purple.900"
+                          : colorMode === "dark" && !isActive
+                          ? "gray.200"
+                          : ""
+                      }
                       borderBottomWidth="1px"
                       fontSize="xl"
                     >
-                      📝 {note.title}
+                      <Text
+                        color={colorMode === "dark" && !isActive ? "black" : ""}
+                      >
+                        📝 {note.title}
+                      </Text>
                     </ListItem>
                   )}
                 </NavLink>
@@ -87,7 +115,7 @@ export default function NotesPage() {
           )}
         </Stack>
 
-        <chakra.div flex="1" p="6">
+        <chakra.div flex="1" p="6" bg={useColorModeValue("", "gray.800")}>
           <Outlet />
         </chakra.div>
       </Flex>

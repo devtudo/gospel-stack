@@ -15,7 +15,9 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  useColorModeValue,
   chakra,
+  Box,
 } from "@chakra-ui/react";
 import { createUserSession, getUserId } from "~/session.server";
 import { verifyLogin } from "~/models/user.server";
@@ -102,83 +104,95 @@ export default function LoginPage() {
   }, [actionData]);
 
   return (
-    <Flex minH={"100vh"} direction="column" justify="center">
+    <Flex
+      minH={"100vh"}
+      direction="column"
+      justify="center"
+      bg={useColorModeValue("gray.50", "gray.800")}
+    >
       <chakra.div mx="auto" w="full" maxW="md" px="8">
-        <Form method="post" noValidate>
-          <Flex direction="column" gap="6">
-            <FormControl
-              isInvalid={actionData?.errors?.email ? true : undefined}
-            >
-              <FormLabel
-                htmlFor="email"
-                fontSize="sm"
-                fontWeight="medium"
-                color="gray.700"
+        <Box
+          rounded={"lg"}
+          bg={useColorModeValue("white", "gray.700")}
+          boxShadow={"lg"}
+          p={8}
+        >
+          <Form method="post" noValidate>
+            <Flex direction="column" gap="6">
+              <FormControl
+                isInvalid={actionData?.errors?.email ? true : undefined}
               >
-                Email address
-              </FormLabel>
-              <Input
-                ref={emailRef}
-                id="email"
-                required
-                autoFocus={true}
-                name="email"
-                type="email"
-                autoComplete="email"
-                mt="1"
-              />
-              <FormErrorMessage>{actionData?.errors?.email}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl
-              isInvalid={actionData?.errors?.password ? true : undefined}
-            >
-              <FormLabel
-                htmlFor="password"
-                fontSize="sm"
-                fontWeight="medium"
-                color="gray.700"
-              >
-                Password
-              </FormLabel>
-              <Input
-                id="password"
-                ref={passwordRef}
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                mt="1"
-              />
-              <FormErrorMessage>
-                {actionData?.errors?.password}
-              </FormErrorMessage>
-            </FormControl>
-
-            <input type="hidden" name="redirectTo" value={redirectTo} />
-            <Button type="submit" colorScheme="blue">
-              Log in
-            </Button>
-            <Flex direction="column" align="center" justify="space-between">
-              <Checkbox id="remember" name="remember">
-                Remember me
-              </Checkbox>
-
-              <chakra.div textAlign="center" fontSize="sm" color="gray.500">
-                Don't have an account?{" "}
-                <ChakraRemixLink
-                  color="blue.500"
-                  textDecor="underline"
-                  to={{
-                    pathname: "/join",
-                    search: searchParams.toString(),
-                  }}
+                <FormLabel
+                  htmlFor="email"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.700"
                 >
-                  Sign up
-                </ChakraRemixLink>
-              </chakra.div>
+                  Email address
+                </FormLabel>
+                <Input
+                  ref={emailRef}
+                  id="email"
+                  required
+                  autoFocus={true}
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  mt="1"
+                />
+                <FormErrorMessage>{actionData?.errors?.email}</FormErrorMessage>
+              </FormControl>
+
+              <FormControl
+                isInvalid={actionData?.errors?.password ? true : undefined}
+              >
+                <FormLabel
+                  htmlFor="password"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.700"
+                >
+                  Password
+                </FormLabel>
+                <Input
+                  id="password"
+                  ref={passwordRef}
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  mt="1"
+                />
+                <FormErrorMessage>
+                  {actionData?.errors?.password}
+                </FormErrorMessage>
+              </FormControl>
+
+              <input type="hidden" name="redirectTo" value={redirectTo} />
+              <Button type="submit" colorScheme="blue">
+                Log in
+              </Button>
+              <Flex direction="column" align="center" justify="space-between">
+                <Checkbox id="remember" name="remember">
+                  Remember me
+                </Checkbox>
+
+                <chakra.div textAlign="center" fontSize="sm" color="gray.500">
+                  Don't have an account?{" "}
+                  <ChakraRemixLink
+                    color="blue.500"
+                    textDecor="underline"
+                    to={{
+                      pathname: "/join",
+                      search: searchParams.toString(),
+                    }}
+                  >
+                    Sign up
+                  </ChakraRemixLink>
+                </chakra.div>
+              </Flex>
             </Flex>
-          </Flex>
-        </Form>
+          </Form>
+        </Box>
       </chakra.div>
     </Flex>
   );

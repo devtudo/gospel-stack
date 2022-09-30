@@ -14,7 +14,9 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  useColorModeValue,
   chakra,
+  Box,
 } from "@chakra-ui/react";
 import { createUserSession, getUserId } from "~/session.server";
 
@@ -102,77 +104,89 @@ export default function Join() {
   }, [actionData]);
 
   return (
-    <Flex minH={"100vh"} direction="column" justify="center">
+    <Flex
+      minH={"100vh"}
+      direction="column"
+      justify="center"
+      bg={useColorModeValue("gray.50", "gray.800")}
+    >
       <chakra.div mx="auto" w="full" maxW="md" px="8">
-        <Form method="post" className="space-y-6" noValidate>
-          <Flex direction="column" gap="6">
-            <FormControl
-              isInvalid={actionData?.errors?.email ? true : undefined}
-            >
-              <FormLabel
-                htmlFor="email"
-                fontSize="sm"
-                fontWeight="medium"
-                color="gray.700"
+        <Box
+          rounded={"lg"}
+          bg={useColorModeValue("white", "gray.700")}
+          boxShadow={"lg"}
+          p={8}
+        >
+          <Form method="post" className="space-y-6" noValidate>
+            <Flex direction="column" gap="6">
+              <FormControl
+                isInvalid={actionData?.errors?.email ? true : undefined}
               >
-                Email address
-              </FormLabel>
-              <Input
-                ref={emailRef}
-                id="email"
-                required
-                autoFocus={true}
-                name="email"
-                type="email"
-                autoComplete="email"
-                mt="1"
-              />
-              <FormErrorMessage>{actionData?.errors?.email}</FormErrorMessage>
-            </FormControl>
+                <FormLabel
+                  htmlFor="email"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.700"
+                >
+                  Email address
+                </FormLabel>
+                <Input
+                  ref={emailRef}
+                  id="email"
+                  required
+                  autoFocus={true}
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  mt="1"
+                />
+                <FormErrorMessage>{actionData?.errors?.email}</FormErrorMessage>
+              </FormControl>
 
-            <FormControl
-              isInvalid={actionData?.errors?.password ? true : undefined}
-            >
-              <FormLabel
-                htmlFor="password"
-                fontSize="sm"
-                fontWeight="medium"
-                color="gray.700"
+              <FormControl
+                isInvalid={actionData?.errors?.password ? true : undefined}
               >
-                Password
-              </FormLabel>
-              <Input
-                id="password"
-                ref={passwordRef}
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                mt="1"
-              />
-              <FormErrorMessage>
-                {actionData?.errors?.password}
-              </FormErrorMessage>
-            </FormControl>
+                <FormLabel
+                  htmlFor="password"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.700"
+                >
+                  Password
+                </FormLabel>
+                <Input
+                  id="password"
+                  ref={passwordRef}
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  mt="1"
+                />
+                <FormErrorMessage>
+                  {actionData?.errors?.password}
+                </FormErrorMessage>
+              </FormControl>
 
-            <input type="hidden" name="redirectTo" value={redirectTo} />
-            <Button type="submit" colorScheme="blue">
-              Create Account
-            </Button>
-            <chakra.div textAlign="center" fontSize="sm" color="gray.500">
-              Already have an account?{" "}
-              <ChakraRemixLink
-                color="blue.500"
-                textDecor="underline"
-                to={{
-                  pathname: "/login",
-                  search: searchParams.toString(),
-                }}
-              >
-                Log in
-              </ChakraRemixLink>
-            </chakra.div>
-          </Flex>
-        </Form>
+              <input type="hidden" name="redirectTo" value={redirectTo} />
+              <Button type="submit" colorScheme="blue">
+                Create Account
+              </Button>
+              <chakra.div textAlign="center" fontSize="sm" color="gray.500">
+                Already have an account?{" "}
+                <ChakraRemixLink
+                  color="blue.500"
+                  textDecor="underline"
+                  to={{
+                    pathname: "/login",
+                    search: searchParams.toString(),
+                  }}
+                >
+                  Log in
+                </ChakraRemixLink>
+              </chakra.div>
+            </Flex>
+          </Form>
+        </Box>
       </chakra.div>
     </Flex>
   );

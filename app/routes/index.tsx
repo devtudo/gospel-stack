@@ -14,12 +14,16 @@ import {
   useColorModeValue,
   useBreakpointValue,
   useDisclosure,
+  AspectRatio,
+  useColorMode,
 } from "@chakra-ui/react";
 import {
   HamburgerIcon,
   CloseIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  MoonIcon,
+  SunIcon,
 } from "@chakra-ui/icons";
 import { Link } from "@remix-run/react";
 
@@ -28,11 +32,12 @@ import { useOptionalUser } from "~/utils";
 export default function Index() {
   const user = useOptionalUser();
   const { isOpen, onToggle } = useDisclosure();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <Box>
       <Flex
-        bg={useColorModeValue("white", "gray.800")}
+        bg={useColorModeValue("gray.50", "gray.800")}
         color={useColorModeValue("gray.600", "white")}
         minH={"60px"}
         py={{ base: 2 }}
@@ -69,46 +74,48 @@ export default function Index() {
             <DesktopNav />
           </Flex>
         </Flex>
+        <Stack direction="row" spacing={4} align="center">
+          <Button onClick={toggleColorMode}>
+            {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+          </Button>
 
-        {user ? (
-          <Link
-            to="/notes"
-            className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-blue-700 shadow-sm hover:bg-blue-50 sm:px-8"
-          >
-            View Notes for {user.email}
-          </Link>
-        ) : (
-          <Stack
-            flex={{ base: 1, md: 0 }}
-            justify={"flex-end"}
-            direction={"row"}
-            spacing={6}
-          >
-            <Button
-              as={Link}
-              fontSize={"sm"}
-              fontWeight={400}
-              variant={"link"}
-              to="/login"
-            >
-              Log In
+          {user ? (
+            <Button as={Link} to="/notes" colorScheme="teal" variant="outline">
+              View Notes for {user.email}
             </Button>
-            <Button
-              as={Link}
-              display={{ base: "none", md: "inline-flex" }}
-              fontSize={"sm"}
-              fontWeight={600}
-              color={"white"}
-              bg={"pink.400"}
-              to="/join"
-              _hover={{
-                bg: "pink.300",
-              }}
+          ) : (
+            <Stack
+              flex={{ base: 1, md: 0 }}
+              justify={"flex-end"}
+              direction={"row"}
+              spacing={6}
             >
-              Sign Up
-            </Button>
-          </Stack>
-        )}
+              <Button
+                as={Link}
+                fontSize={"sm"}
+                fontWeight={400}
+                variant={"link"}
+                to="/login"
+              >
+                Log In
+              </Button>
+              <Button
+                as={Link}
+                display={{ base: "none", md: "inline-flex" }}
+                fontSize={"sm"}
+                fontWeight={600}
+                color={"white"}
+                bg={"pink.400"}
+                to="/join"
+                _hover={{
+                  bg: "pink.300",
+                }}
+              >
+                Sign Up
+              </Button>
+            </Stack>
+          )}
+        </Stack>
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
