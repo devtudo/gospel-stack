@@ -9,7 +9,7 @@ import { getNote } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
 
 type LoaderData = {
-  note: Note;
+  note: Pick<Note, "body" | "title">;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
